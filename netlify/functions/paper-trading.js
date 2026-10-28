@@ -95,9 +95,23 @@ async function loadAccount(store, accountId) {
 }
 
 exports.handler = async (event) => {
+  const serverSecret = process.env.PAPER_TRADING_SECRET;
+
+  if (!serverSecret) {
+    return response(500, {
+      error: "Server configuration error: PAPER_TRADING_SECRET is missing."
+    });
+  }
+
+  if (serverSecret.length < 24) {
+    return response(500, {
+      error: "Server configuration error: secret is too short."
+    });
+  }
+
   if (!authorized(event)) {
     return response(401, {
-      error: "Unauthorized. Valid server-side authentication is required."
+      error: "Unauthorized. Check the Paper Trading secret."
     });
   }
 
