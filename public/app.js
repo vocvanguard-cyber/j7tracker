@@ -1572,7 +1572,188 @@ const app = {
     }
     return false;
   },
+  // ---------- PAPER TRADING ----------
 
+  async paperTradingRequest(method = 'GET', payload = null) {
+    const secretInput = document.getElementById('paperSecretInput');
+    const secret = secretInput?.value.trim();
+
+    if (!secret) {
+      throw new Error('Masukkan secret Paper Trading terlebih dahulu.');
+    }
+
+    let accountId = localStorage.getItem('j7-paper-account');
+
+    if (!accountId) {
+      accountId = 'paper_' +
+        (crypto.randomUUID
+          ? crypto.randomUUID().replace(/-/g, '')
+          : Date.now().toString(36) + Math.random().toString(36).slice(2));
+
+      localStorage.setItem('j7-paper-account', accountId);
+    }
+
+    const options = {
+      method,
+      headers: {
+        'Authorization': 'Bearer ' + secret,
+        'Content-Type': 'application/json'
+      }
+    };
+
+    let url = '/.netlify/functions/paper-trading';
+
+    if (method === 'GET') {
+      url += '?accountId=' + encodeURIComponent(accountId);
+    } else {
+      options.body = JSON.stringify({
+        ...payload,
+        accountId
+      });
+    }
+
+    const response = await fetch(url, options);
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Permintaan Paper Trading gagal.');
+    }
+
+    return data;
+  },
+
+  async loadPaperTrading() {
+    const status = document.getElementById('paperStatus');
+
+    try {
+      status.textContent = 'Menghubungkan akun simulasi...';
+
+      const data = await this.paperTradingRequest('GET');
+
+      this.renderPaperTrading(data);
+
+      status.textContent = 'Terhubung — mode simulasi aktif.';
+    } catch (error) {
+      status.textContent = error.message;
+    }
+  },
+
+  async paperBuy() {
+    const token = document.getElementById('paperTokenInput').value.trim();
+    const amountUsd = Number(
+      document.getElementById('paperAmountInput').value
+    );
+    const priceUsd = Number(
+      document.getElementById('paperPriceInput').value
+    );
+
+    if (!token || !Number.isFinite(amountUsd) ||
+        !Number.isFinite(priceUsd)) {
+      alert('Isi nama token, modal USD, dan harga token dengan benar.');
+      return;
+    }
+
+    try {
+      const data = await this.paperTradingRequest('POST', {
+        action: 'buy',
+        token,
+        amountUsd,
+        priceUsd
+      });
+
+      alert(data.message || 'Pembelian simulasi berhasil.');
+
+      await this.loadPaperTrading();
+    } catch (error) {
+      alert(error.message);
+    }
+  },
+
+  async paperSell(positionId) {
+    const priceInput = document.getElementById('paperPriceInput');
+    const priceUsd = Number(priceInput.value);
+
+    if (!Number.isFinite(priceUsd) || priceUsd <= 0) {
+      alert('Masukkan harga jual simulasi yang valid.');
+      return;
+    }
+
+    try {
+      const data = await this.paperTradingRequest('POST', {
+        action: 'sell',
+        positionId,
+        priceUsd
+      });
+
+      alert(
+        'Posisi ditutup secara simulasi. P/L: $' +
+        Number(data.pnlUsd).toFixed(2)
+      );
+
+      await this.loadPaperTrading();
+    } catch (error) {
+      alert(error.message);
+    }
+  },
+
+  renderPaperTrading(data) {
+    const balance = document.getElementById('paperBalance');
+    const positionsBox = document.getElementById('paperPositions');
+    const historyBox = document.getElementById('paperHistory');
+
+    balance.textContent =
+      '$' + Number(data.balanceUsd).toFixed(2);
+
+    if (!data.positions || data.positions.length === 0) {
+      positionsBox.textContent = 'Belum ada posisi terbuka.';
+    } else {
+      positionsBox.replaceChildren();
+
+      data.positions.forEach(position => {
+        const row = document.createElement('div');
+        row.style.marginBottom = '12px';
+
+        const info = document.createElement('p');
+        info.textContent =
+          position.token +
+          ' | Modal: $' + Number(position.investedUsd).toFixed(2) +
+          ' | Harga masuk: $' +
+          Number(position.entryPriceUsd).toFixed(8);
+
+        const button = document.createElement('button');
+        button.textContent = 'Jual simulasi';
+
+        button.addEventListener('click', () => {
+          this.paperSell(position.id);
+        });
+
+        row.append(info, button);
+        positionsBox.appendChild(row);
+      });
+    }
+
+    if (!data.history || data.history.length === 0) {
+      historyBox.textContent = 'Belum ada transaksi.';
+    } else {
+      historyBox.replaceChildren();
+
+      data.history.slice().reverse().forEach(item => {
+        const row = document.createElement('p');
+
+        row.textContent =
+          (item.action || 'Transaksi') +
+          ' | ' + (item.token || '-') +
+          ' | ' +
+          '$' + Number(
+            item.amountUsd ?? item.proceedsUsd ?? 0
+          ).toFixed(2);
+
+        historyBox.appendChild(row);
+      });
+    }
+  },
+
+  // ---------- AKHIR PAPER TRADING ----------
   toggleWakeWord(enabled) {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     const box = document.getElementById('wakeWordToggle');
