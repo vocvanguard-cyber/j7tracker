@@ -40,7 +40,34 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--fon
 }
 
 @media (max-width: 899px) {
-  .sidebar-nav-desktop, .badge-pill, .page, .hub-back-bar { display: none !important; }
+  .sidebar-nav-desktop,
+  .badge-pill,
+  .hub-back-bar {
+    display: none !important;
+  }
+
+  .page {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  #page-tradebot {
+    padding: 12px;
+    overflow-x: hidden;
+  }
+
+  #page-tradebot .panel {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  #page-tradebot input,
+  #page-tradebot button {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
 }
 
 header {
