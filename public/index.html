@@ -156,25 +156,109 @@
   </div>
 
   <!-- AI Trade Bot full preview (desktop only) -->
-  <div class="page" id="page-tradebot" style="display:none;">
-    <div class="panel demo-panel">
-      <div class="demo-badge">DEMO DATA &mdash; Stage 3 not active, nothing on this page is real</div>
-      <div class="panel-header">AI Trade Agent Preview</div>
-      <p class="demo-explainer">This is a mockup of what autonomous execution will look like once Stage 3 is built and you've explicitly opted in. Right now, J7Tracker only reads data &mdash; it has never held a private key or moved any funds.</p>
-      <div class="agent-avatar-row">
-        <div class="agent-avatar">&#129302;</div>
-        <div>
-          <div class="agent-status-text">Autonomous Mode: Not Active</div>
-          <div class="agent-status-sub">No trades have been executed. No wallet with trading permissions exists.</div>
-        </div>
-      </div>
-      <div class="panel-sub-header">Sample Recent Actions (illustrative only)</div>
-      <div class="ai-action-item"><span>Bought 12.45 SOLDEGEN &middot; $1,245.00</span><span class="tag-long">LONG</span></div>
-      <div class="ai-action-item"><span>Sold 8.21 BONK &middot; $982.30</span><span class="tag-profit">TAKE PROFIT</span></div>
-      <div class="ai-action-item"><span>Bought 5.63 WIF &middot; $754.21</span><span class="tag-long">LONG</span></div>
-      <div class="ai-action-item"><span>Set stop-loss on POPCAT &middot; $612.44</span><span class="tag-risk">RISK MGMT</span></div>
+<div class="page" id="page-tradebot" style="display:none;">
+  <div class="panel demo-panel">
+    <div class="demo-badge">
+      PAPER TRADING — SIMULASI SAJA
+    </div>
+
+    <div class="panel-header">J7 Paper Trading</div>
+
+    <p class="demo-explainer">
+      Latihan trading menggunakan saldo virtual.
+      Tidak menggunakan uang sungguhan dan tidak mengirim transaksi
+      ke blockchain.
+    </p>
+
+    <div class="section-label">Status akun</div>
+    <div id="paperStatus">
+      Dashboard belum terhubung.
+    </div>
+
+    <div class="section-label" style="margin-top:16px;">
+      Autentikasi
+    </div>
+
+    <p class="placeholder-note">
+      Masukkan secret hanya untuk pengujian pribadi.
+      Jangan menyimpan secret di kode atau localStorage.
+    </p>
+
+    <input
+      type="password"
+      id="paperSecretInput"
+      placeholder="PAPER_TRADING_SECRET"
+      autocomplete="off"
+      style="width:100%; margin-bottom:10px;"
+    >
+
+    <button
+      class="launch-btn"
+      onclick="app.loadPaperTrading()"
+    >
+      Hubungkan akun simulasi
+    </button>
+
+    <div class="section-label" style="margin-top:20px;">
+      Saldo virtual
+    </div>
+
+    <div id="paperBalance">$100.00</div>
+
+    <div class="section-label" style="margin-top:20px;">
+      Buka posisi simulasi
+    </div>
+
+    <input
+      type="text"
+      id="paperTokenInput"
+      placeholder="Nama token"
+      style="width:100%; margin-bottom:10px;"
+    >
+
+    <input
+      type="number"
+      id="paperAmountInput"
+      placeholder="Modal USD (maks. 10)"
+      min="0.01"
+      max="10"
+      step="0.01"
+      style="width:100%; margin-bottom:10px;"
+    >
+
+    <input
+      type="number"
+      id="paperPriceInput"
+      placeholder="Harga token USD"
+      min="0.00000001"
+      step="any"
+      style="width:100%; margin-bottom:10px;"
+    >
+
+    <button
+      class="launch-btn"
+      onclick="app.paperBuy()"
+    >
+      Beli simulasi
+    </button>
+
+    <div class="section-label" style="margin-top:20px;">
+      Posisi terbuka
+    </div>
+
+    <div id="paperPositions">
+      Belum ada posisi.
+    </div>
+
+    <div class="section-label" style="margin-top:20px;">
+      Riwayat transaksi
+    </div>
+
+    <div id="paperHistory">
+      Belum ada transaksi.
     </div>
   </div>
+</div>
 
   <div class="hub-back-bar" id="hubBackBar" style="display:none;">
     <button onclick="app.closeHubDetail()">&larr; Back to overview</button>
