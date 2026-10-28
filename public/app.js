@@ -98,7 +98,10 @@ const app = {
   ALL_GROUP_IDS: { wallets: 'walletsGroup', updates: 'updatesGroup', watchlist: 'watchlistGroup', charts: 'chartsGroup', chat: 'chatGroup', settings: 'settingsGroup', stage3: 'stage3Group' },
 
   showPage(name) {
-    if (!this.isDesktop) { this.openSection(name); return; }
+if (!this.isDesktop && name !== 'tradebot' && name !== 'home') {
+this.openSection(name);
+return;
+}
 
     // Hide every standalone page and every card-group first.
     this.ALL_PAGE_IDS.forEach(id => {
